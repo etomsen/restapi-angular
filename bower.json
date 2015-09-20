@@ -1,0 +1,28 @@
+{
+    "name": "me.tomsen.restapi",
+    "version": "1.0.0",
+    "description": "A component for wroking with my Java restapi based on tokens. Allows to execute authenticated http queries.",
+    "main": "restapi.module.js, restapi.provider.js, user.provider.js",
+    "keywords": [
+        "tomsen.me",
+        "restapi",
+        "angular"
+    ],
+    "authors": [
+        "Evgeny Tomsen"
+    ],
+    "license": "MIT",
+    "homepage": "www.restapi.tomsen.me",
+    "dependencies": {
+        "angular": "~1.0.6",
+        "angular-local-store": "~0.2.3",
+        "cryptojslib": "~3.1.2"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ]
+}
