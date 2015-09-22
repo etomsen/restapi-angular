@@ -2,24 +2,58 @@
 	'use strict';
 	angular
 		.module('me.tomsen.restapi')
-		.factory('restapi', factoryFn);
+		.provider('restapi', providerFn);
 
-	factoryFn.inject = ['$localStore', '$http', '$q', 'cryptojs', 'restapiUser'];
-
-	function factoryFn($localStore, $http, $q, cryptojs, restapiUser) {
+	function providerFn() {
+		var storeKey;
+		var serverUrl;
 		var httpTimeout = 20000;
+		var injected = {};
 
 		return {
-			getAuth: getAuth,
-			postAuth: postAuth,
-			post: post,
-			get: get,
-			http: http,
-			getServerUrl: getServerUrl,
+			setStoreKey: setStoreKey,
 			setServerUrl: setServerUrl,
-			healthCheckAuth: healthCheckAuth,
-			isErrorLogout: isErrorLogout
+			$get: ['$http', '$q', 'cryptojs', 'restapiUser', function($http, $q, cryptojs, restapiUser){
+				injected.$http = $http;
+				injected.$q = $q;
+				injected.cryptojs = cryptojs;
+				injected.restapiUser = restapiUser;
+				return {
+					getAuth: getAuth,
+					postAuth: postAuth,
+					post: post,
+					get: get,
+					http: http,
+					getServerUrl: getServerUrl,
+					healthCheckAuth: healthCheckAuth,
+					isErrorLogout: isErrorLogout
+				};
+			}]
 		};
+
+		function ERestapiProvider(message) {
+  			this.name = 'ERestapiProvider';
+  			this.message = message;
+		}
+		ERestapiProvider.prototype = new Error();
+		ERestapiProvider.prototype.constructor = ERestapiProvider;
+
+
+		function checkProviderCfg(){
+			if (!storeKey) {
+				throw new ERestapiProvider('Store key is not defined. Plese config the provider with "setStoreKey" method');
+			}
+			if (!serverUrl) {
+				throw new ERestapiProvider('Server URL is not defined. Please add configure the provider.');
+			}
+		}
+		/**
+		 * provider function
+		 * @param {String} value - a store key for saving in the localstore the session_token and the user_data when app is closed
+		 */
+		function setStoreKey(value){
+			storeKey = value;
+		}
 
 		function isErrorLogout(error) {
 			if (error.errorCode === 'restapi.error.403.40304') {
@@ -167,8 +201,8 @@
 		}
 
 		function http(request) {
-			var deferred = $q.defer();
-			$http(request).then(
+			var deferred = injected.$q.defer();
+			injected.$http(request).then(
 				function(response) {
 	    			var parseResponseObj = {};
                     if (parseResponse(response, parseResponseObj)) {
@@ -192,15 +226,17 @@
 
 		}
 
+		/**
+		 * provider config function
+		 * @param {String} value - server url
+		 */
 		function setServerUrl(value) {
-			$localStore.put('tao-server-url', value);
+			serverUrl = value;
 		}
 
 		function getServerUrl() {
-			// return 'http://10.7.97.13:8080';
-			// return 'http://localhost:8080';
-			return 'https://taommg.edp-progetti.it/taotouchserver';
-			// return $localStore.get('tao-server-url') || 'https://taommg.edp-progetti.it/taotouchserver';
+			checkProviderCfg();
+			return serverUrl;
 		}
 
 		function getIsoDate() {
@@ -220,15 +256,15 @@
 	    }
 
 		function getAuthHeader(url, method) {
-	        var userId = restapiUser.getUserId();
-	        var sessionToken = restapiUser.getSessionToken();
+	        var userId = injected.restapiUser.getUserId();
+	        var sessionToken = injected.restapiUser.getSessionToken();
 	        if (!userId || !sessionToken) {
 	            return null;
 	        }
 	        var time = getIsoDate();
 	        var nonce = makeRandomString();
 	        var stringToHash = '{0}:{1},{2},{3},{4}'.f(sessionToken, url, method, time, nonce);
-	        var authorization = '{0}:{1}'.f(userId, cryptojs.restapiHash(stringToHash));
+	        var authorization = '{0}:{1}'.f(userId, injected.cryptojs.restapiHash(stringToHash));
 	        return {
 	        	'Content-Type': 'application/json',
 	            'Authorization': authorization,

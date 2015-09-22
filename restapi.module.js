@@ -16,12 +16,12 @@
 		    				var deferred = $q.defer();
 		    				$http.get('http://ip-api.com/json/')
 						    	.success(function(){
-						    		console.info('My great page is loaded - We are online :)', arguments);
+						    		console.info('RESTAPI service is reached. We are online.', arguments);
 						    		response.noNetwork = false;
 									deferred.reject(response);
 						    	})
 						    	.error(function(){
-						    		console.info('ERROR: My great online page is not loaded :/ - possibility of connection loss?',arguments);
+						    		console.info('ERROR: RESTAPI service was not reached. Possibility of connection loss.', arguments);
 						    		response.noNetwork = true;
 									deferred.reject(response);
 						    	});
