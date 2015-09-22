@@ -1,8 +1,8 @@
 {
     "name": "me.tomsen.restapi",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "description": "A component for wroking with my Java restapi based on tokens. Allows to execute authenticated http queries.",
-    "main": "restapi.module.js, restapi.provider.js, user.provider.js",
+    "main": ["restapi.module.js", "restapi.provider.js", "cryptojs.factory.js"],
     "keywords": [
         "tomsen.me",
         "restapi",
@@ -17,6 +17,15 @@
         "angular": "~1.3.0",
         "angular-local-store": "~0.2.3",
         "cryptojslib": "~3.1.2"
+    },
+    "overrides": {
+        "cryptojslib": {
+            "main": [
+                "components/core.js",
+                "components/enc-base64.js",
+                "components/sha256.js"
+            ]
+        }
     },
     "ignore": [
         "**/.*",

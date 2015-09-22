@@ -3,9 +3,9 @@
 
 	angular
 		.module('me.tomsen.restapi')
-		.factory('cryptojs', ['$window', factory]);
+		.factory('cryptojs', ['$window', factoryFn]);
 
-	function factory($window) {
+	function factoryFn($window) {
 		var cryptojs = $window.CryptoJS || {};
 		cryptojs.sha256encBase64 = function(value) {
 	    	var h = cryptojs.SHA256 ? cryptojs.SHA256(value) : '';

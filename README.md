@@ -1,5 +1,8 @@
 ##How to create a separate bower module##
 
+Acording to (Bower package tutorial)[http://briantford.com/blog/angular-bower]
+---
+
 1. copy all module files to a separate foler
 2. run "bower init" and setup a bower component
 3. add/update dependencies
@@ -14,7 +17,7 @@
 
 ###Now, try to install it###
 
-1. bower install etomsen/restapi-angular
+1. bower install me.tomsen.restapi
 
 ---
 
@@ -26,8 +29,3 @@
 
 ###TODO###
 
-1. ~~update the angular dependency to 1.3~~
-2. ~~remove any "tao" string from the component~~
-3. ~~transform restapi.factory to restapi.provider. make it configurable: url~~
-4. release the 1.0.1 version on bower
-5. test new provider and factory

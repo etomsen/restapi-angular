@@ -8,52 +8,37 @@
 		var storeKey;
 		var serverUrl;
 		var httpTimeout = 20000;
+		var userData;
 		var injected = {};
-
 		return {
 			setStoreKey: setStoreKey,
 			setServerUrl: setServerUrl,
-			$get: ['$http', '$q', 'cryptojs', 'restapiUser', function($http, $q, cryptojs, restapiUser){
+			$get: ['$http', '$q', '$localStore', 'cryptojs',  function($http, $q, $localStore, cryptojs){
 				injected.$http = $http;
 				injected.$q = $q;
+				injected.$localStore = $localStore;
 				injected.cryptojs = cryptojs;
-				injected.restapiUser = restapiUser;
 				return {
+					getStoreKey: getStoreKey,
+					getServerUrl: getServerUrl,
 					getAuth: getAuth,
 					postAuth: postAuth,
 					post: post,
 					get: get,
 					http: http,
-					getServerUrl: getServerUrl,
 					healthCheckAuth: healthCheckAuth,
-					isErrorLogout: isErrorLogout
+					isErrorLogout: isErrorLogout,
+					getUserData: getUserData,
+					setUserData: setUserData,
+					getUserId: getUserId,
+					getUserRole: getUserRole,
+					getSessionToken: getSessionToken,
+					isLoggedIn: isLoggedIn,
+					setUser: setUser,
+					clearUser: clearUser
 				};
 			}]
 		};
-
-		function ERestapiProvider(message) {
-  			this.name = 'ERestapiProvider';
-  			this.message = message;
-		}
-		ERestapiProvider.prototype = new Error();
-		ERestapiProvider.prototype.constructor = ERestapiProvider;
-
-
-		function checkProviderCfg(){
-			if (!storeKey) {
-				throw new ERestapiProvider('Store key is not defined. Plese config the provider with "setStoreKey" method');
-			}
-			if (!serverUrl) {
-				throw new ERestapiProvider('Server URL is not defined. Please add configure the provider.');
-			}
-		}
-		/**
-		 * provider function
-		 * @param {String} value - a store key for saving in the localstore the session_token and the user_data when app is closed
-		 */
-		function setStoreKey(value){
-			storeKey = value;
-		}
 
 		function isErrorLogout(error) {
 			if (error.errorCode === 'restapi.error.403.40304') {
@@ -226,19 +211,6 @@
 
 		}
 
-		/**
-		 * provider config function
-		 * @param {String} value - server url
-		 */
-		function setServerUrl(value) {
-			serverUrl = value;
-		}
-
-		function getServerUrl() {
-			checkProviderCfg();
-			return serverUrl;
-		}
-
 		function getIsoDate() {
 			var d = new Date();
 	        function pad(n) {
@@ -256,8 +228,8 @@
 	    }
 
 		function getAuthHeader(url, method) {
-	        var userId = injected.restapiUser.getUserId();
-	        var sessionToken = injected.restapiUser.getSessionToken();
+	        var userId = getUserId();
+	        var sessionToken = getSessionToken();
 	        if (!userId || !sessionToken) {
 	            return null;
 	        }
@@ -272,5 +244,93 @@
 	            'nonce': nonce
 	        };
 	    }
+
+	    function getUserData() {
+			return userData;
+		}
+
+		function setUserData(data) {
+			userData = data;
+		}
+
+		function getUser(){
+			return injected.$localStore.get(getUserKey()) || {};
+		}
+
+		function getUserRole(){
+			var user = getUser();
+			return user.role;
+		}
+
+		function getSessionToken(){
+			var user = getUser();
+			return user.sessionToken;
+		}
+
+		function getUserId(){
+			var user = getUser();
+			return user.id;
+		}
+
+		function isLoggedIn(){
+			var user = getUser();
+			return user && user.id && user.role && user.sessionToken;
+		}
+
+		function setUser(userId, userRole, sessionToken) {
+			injected.$localStore.put(getUserKey(), {id: userId, role: userRole, sessionToken: sessionToken});
+		}
+
+		function getUserKey() {
+			return getStoreKey()+'-restapi-user';
+		}
+
+		function clearUser() {
+			injected.$localStore.remove(getUserKey());
+			userData = null;
+		}
+
+		function getStoreKey() {
+			checkProviderCfg();
+			return serverUrl;
+		}
+
+		function ERestapiProvider(message) {
+  			this.name = 'ERestapiProvider';
+  			this.message = message;
+		}
+		ERestapiProvider.prototype = new Error();
+		ERestapiProvider.prototype.constructor = ERestapiProvider;
+
+
+		function checkProviderCfg(){
+			if (!storeKey) {
+				throw new ERestapiProvider('Store key is not defined. Plese config the provider with "setStoreKey" method');
+			}
+			if (!serverUrl) {
+				throw new ERestapiProvider('Server URL is not defined. Please add configure the provider.');
+			}
+		}
+		/**
+		 * provider function
+		 * @param {String} value - a store key for saving in the $localStore the session_token and the user_data when app is closed
+		 */
+		function setStoreKey(value){
+			storeKey = value;
+		}
+
+		/**
+		 * provider config function
+		 * @param {String} value - server url
+		 */
+		function setServerUrl(value) {
+			serverUrl = value;
+		}
+
+		function getServerUrl() {
+			checkProviderCfg();
+			return serverUrl;
+		}
+
 	}
 })();
