@@ -8,8 +8,7 @@
 		    			console.log('restapi.module.responseError: res='+JSON.stringify(response));
 		    			if (!response.config || response.config.url === 'http://ip-api.com/json/')  {
 		    				response.noNetwork = true;
-							deferred.reject(response);
-		    				return $q.reject(response);
+							return $q.reject(response);
 		    			}
 		    			if (response.data === null && response.status === 0 && response.statusText === '') {
 		    				var $http = $injector.get('$http');
