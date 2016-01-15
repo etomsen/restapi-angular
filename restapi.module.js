@@ -13,7 +13,7 @@
 		    			if (response.data === null && response.status === 0 && response.statusText === '') {
 		    				var $http = $injector.get('$http');
 		    				var deferred = $q.defer();
-		    				$http.get('http://ip-api.com/json/')
+		    				$http.get('http://ip-api.com/json/', {'timeout': 500})
 						    	.success(function(){
 						    		console.info('RESTAPI service is reached. We are online.', arguments);
 						    		response.noNetwork = false;
